@@ -19,4 +19,4 @@ Keep both folders next to each other under the Flutter workspace. The wrapper do
 3. Select an iOS Simulator or connected iPhone.
 4. Build and run with `Cmd + R`.
 
-The SDK package product `GlomoPaySDK` is already configured as a local package dependency in the project.
+The SDK package product `glomo-ios-sdk` is already configured as a local package dependency in the project. Swift source files continue to import the `GlomoPaySDK` module.
