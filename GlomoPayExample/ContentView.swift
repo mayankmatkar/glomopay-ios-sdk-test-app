@@ -21,7 +21,6 @@ struct ContentView: View {
                 Section("Checkout") {
                     Text("Checkout type will be detected automatically from the order.")
                         .foregroundStyle(.secondary)
-                    Toggle("Developer mode", isOn: $model.devMode)
                 }
 
                 Section {
@@ -32,14 +31,14 @@ struct ContentView: View {
                     .disabled(model.isStarting)
                 }
 
-                Section("Last payment result") {
+                Section("Last checkout result") {
                     Text(model.status)
                         .foregroundStyle(.secondary)
                 }
 
-                Section("Events") {
+                Section("Callback history") {
                     if model.events.isEmpty {
-                        Text("No events yet")
+                        Text("No callbacks yet")
                             .foregroundStyle(.secondary)
                     } else {
                         ForEach(Array(model.events.enumerated()), id: \.offset) { _, event in

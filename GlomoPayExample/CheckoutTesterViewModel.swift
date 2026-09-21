@@ -7,7 +7,6 @@ import GlomoPaySDK
 final class CheckoutTesterViewModel: ObservableObject, GlomoPayListener {
     @Published var publicKey = ""
     @Published var identifier = ""
-    @Published var devMode = true
     @Published var status = "Ready"
     @Published var events: [String] = []
     @Published var isStarting = false
@@ -24,12 +23,12 @@ final class CheckoutTesterViewModel: ObservableObject, GlomoPayListener {
             return
         }
 
-        let isSubscription = identifier.hasPrefix("sub_")
+        let checkoutID = identifier.trimmingCharacters(in: .whitespacesAndNewlines)
+        let isSubscription = checkoutID.hasPrefix("sub_")
         let config = GlomoPayConfig(
             publicKey: publicKey.trimmingCharacters(in: .whitespacesAndNewlines),
-            orderId: isSubscription ? nil : identifier.trimmingCharacters(in: .whitespacesAndNewlines),
-            subscriptionId: isSubscription ? identifier.trimmingCharacters(in: .whitespacesAndNewlines) : nil,
-            devMode: devMode
+            orderId: isSubscription ? nil : checkoutID,
+            subscriptionId: isSubscription ? checkoutID : nil
         )
         let errors = GlomoPaySDK.shared.validate(config)
         guard errors.isEmpty else {
@@ -85,10 +84,10 @@ final class CheckoutTesterViewModel: ObservableObject, GlomoPayListener {
         }
     }
 
-    nonisolated func onEvent(name: String, payload: [String: Any]) {
+    nonisolated func onUserJourneyCompleted(_ payload: GlomoPayUserJourneyPayload) {
         updateOnMain { model in
-            model.events.append("• \(name) \(payload)")
-            if model.events.count > 100 { model.events.removeFirst() }
+            model.isStarting = false
+            model.status = "BANK TRANSFER DETAILS SUBMITTED: \(payload.orderId). Payment confirmation is pending."
         }
     }
 
@@ -96,6 +95,8 @@ final class CheckoutTesterViewModel: ObservableObject, GlomoPayListener {
         Task { @MainActor [weak self] in
             guard let self else { return }
             update(self)
+            self.events.append(self.status)
+            if self.events.count > 100 { self.events.removeFirst() }
         }
     }
 }
